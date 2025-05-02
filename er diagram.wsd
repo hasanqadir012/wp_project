@@ -1,0 +1,88 @@
+@startuml
+
+' Define entity styles for clarity
+hide circle
+skinparam linetype ortho
+skinparam entity {
+    BackgroundColor<<Entity>> #FDF6E3
+    BorderColor Black
+}
+
+' User entity
+entity User {
+    +int UserId <<PK>>
+    string Username
+    string Password
+    string FirstName
+    string LastName
+    string PhoneNumber
+    DateTime CreatedAt
+    DateTime? LastLogin
+    string Email
+}
+
+' Category entity
+entity Category {
+    +string CategoryId <<PK>>
+    string Name
+}
+
+' Product entity
+entity Product {
+    +int ProductId <<PK>>
+    string Name
+    string Description
+    decimal Price
+    int CategoryId <<FK>>
+    int StockQuantity
+    bool IsAvailable
+    DateTime CreatedAt
+    DateTime UpdatedAt
+    string ImageUrl
+}
+
+' CardItem entity
+entity CardItem {
+    +int cartItemId <<PK>>
+    int userId <<FK>>
+    int ProductId
+    int quantity
+    DateTime addedAt
+}
+
+' Order entity
+entity Order {
+    +int OrderId <<PK>>
+    DateTime OrderDate
+    decimal TotalAmount
+    string OrderStatus
+    int ShippingAddressId <<FK>>
+    int BillingAddressId <<FK>>
+    string PaymentMethod
+    string TransactionId
+    DateTime CreatedAt
+}
+
+' OrderItem entity
+entity OrderItem {
+    +int OrderItemId <<PK>>
+    int OrderId <<FK>>
+    int ProductId <<FK>>
+    int Quantity
+    int UnitPrice
+}
+
+
+' Relationships
+User ||--o{ CardItem : has
+User ||--o{ Order : places
+Category ||--o{ Product : includes
+Product ||--o{ OrderItem : sold_in
+Order ||--o{ OrderItem : contains
+CardItem }o--|| User : belongs_to
+CardItem }o--|| Product : contains
+OrderItem }o--|| Product : includes
+OrderItem }o--|| Order : part_of
+Product }o--|| Category : categorized_in
+
+@enduml
