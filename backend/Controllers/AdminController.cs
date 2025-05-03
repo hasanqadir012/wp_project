@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using backend.Data;
 using backend.Models;
 using backend.ViewModels;
@@ -33,7 +31,6 @@ namespace backend.Controllers
         {
             var products = await _db.Products
                 .Include(p => p.Category)
-                .Include(p => p.ImageUrl)
                 .ToListAsync();
             return Ok(products);
         }

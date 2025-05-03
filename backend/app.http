@@ -1,5 +1,5 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
-POST http://localhost:5022/api/login
+POST http://localhost:5022/api/login/login
 Content-Type: application/json
 
 {
@@ -22,3 +22,11 @@ Content-Type: application/json
     "PhoneNumber": "+923350052201",
     "ConfirmPassword": "DoingGood"
 }
+
+###
+
+POST http://localhost:5022/api/login/logout
+
+###
+
+GET http://localhost:5022/api/admin/products

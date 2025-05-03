@@ -3,9 +3,6 @@ using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using backend.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace backend.Controllers
 {

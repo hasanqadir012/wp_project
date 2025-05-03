@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using backend.Data;
-using backend.Helpers;
 using backend.Services;
-using System.Collections.Generic;
-using System.Linq;
+using backend.ViewModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend.Controllers
 {
@@ -39,19 +37,26 @@ namespace backend.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Username),
-                    new Claim("UserId", user.Id.ToString()),
-                    new Claim("IsAdmin", user.IsAdmin ? "true" : "false")
+                    new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
+                    new Claim("UserId", user.Id.ToString())
                 };
 
-                var identity = new ClaimsIdentity(claims, "Login");
+                var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
                 var principal = new ClaimsPrincipal(identity);
 
-                await HttpContext.SignInAsync(principal);
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = model.RememberMe,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(3)
+                };
 
-                HttpContext.Session.SetString("Username", user.Username);
-                HttpContext.Session.SetString("UserId", user.Id.ToString());
+                await HttpContext.SignInAsync(
+                    IdentityConstants.ApplicationScheme,
+                    principal,
+                    authProperties
+                );
 
-                return Ok(new { message = "Login successful", user = user.Username });
+                return Ok(new { message = "Login successful", user = user.Username, isAdmin = user.IsAdmin });
             }
 
             return Unauthorized(new { message = "Invalid login attempt." });
@@ -60,8 +65,7 @@ namespace backend.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
-            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return Ok(new { message = "Logged out successfully" });
         }
 

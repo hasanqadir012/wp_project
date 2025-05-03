@@ -1,7 +1,6 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.Models
+namespace backend.ViewModels
 {
     public class UserRegisterViewModel
     {

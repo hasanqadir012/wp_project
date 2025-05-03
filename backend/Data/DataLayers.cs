@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace backend.Data
 {
-    public class DataLayers : DbContext
+    public class DataLayers : IdentityDbContext
     {
         public DataLayers(DbContextOptions<DataLayers> options)
             : base(options)
