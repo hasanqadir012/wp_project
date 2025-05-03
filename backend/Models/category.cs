@@ -5,14 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
-namespace MyWebsite.Models
+namespace backend.Models
 {
     public class Category 
     {
         [Key]
         [Required]
         [RegularExpression("^[1-9][0-9]{4}$", ErrorMessage = "Category ID must be 5 digits (1-9)")]
-        public string CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         [Required]
         [RegularExpression("^[A-Za-z][A-Za-z0-9\\s]*$", 

@@ -1,4 +1,4 @@
-namespace MyWebsite.Models
+namespace backend.Models
 {
     public enum OrderStatus
     {

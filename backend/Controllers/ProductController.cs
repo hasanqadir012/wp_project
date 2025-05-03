@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using MyWebsite.Data;
-using MyWebsite.Models;
+using backend.Data;
+using backend.Models;
 using Microsoft.EntityFrameworkCore;
-using MyWebsite.ViewModels;
+using backend.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyWebsite.Controllers
+namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

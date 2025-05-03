@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyWebsite.Models
+namespace backend.Models
 {
     public class UserRegisterViewModel
     {

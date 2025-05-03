@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
-using MyWebsite.Models;
+using backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using MyWebsite.Data;
-using MyWebsite.Helpers;
-using MyWebsite.Services;
+using backend.Data;
+using backend.Helpers;
+using backend.Services;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyWebsite.Controllers
+namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

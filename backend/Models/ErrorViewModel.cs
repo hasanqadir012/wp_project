@@ -1,4 +1,4 @@
-namespace MyWebsite.Models;
+namespace backend.Models;
 
 public class ErrorViewModel
 {

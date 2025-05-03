@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MyWebsite.ViewModels
+namespace backend.ViewModels
 {
     public class ProductUpdateViewModel
     {

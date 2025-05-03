@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
-namespace MyWebsite.Models
+namespace backend.Models
 {
     public class Order
     {

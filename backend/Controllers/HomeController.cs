@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyWebsite.Data;
-using MyWebsite.Models;
-using MyWebsite.ViewModels;
+using backend.Data;
+using backend.Models;
+using backend.ViewModels;
 using System.Diagnostics;
 
-namespace MyWebsite.Controllers
+namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

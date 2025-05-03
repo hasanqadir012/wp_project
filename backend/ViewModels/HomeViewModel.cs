@@ -1,7 +1,7 @@
-using MyWebsite.Models;
+using backend.Models;
 using System.Collections.Generic;
 
-namespace MyWebsite.ViewModels
+namespace backend.ViewModels
 {
     public class HomeViewModel
     {

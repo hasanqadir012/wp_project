@@ -1,5 +1,5 @@
 
-namespace MyWebsite.Helpers
+namespace backend.Helpers
 {
     public static class Encryption
     {

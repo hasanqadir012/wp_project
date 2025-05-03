@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyWebsite.Models;
+using backend.Models;
 
-namespace MyWebsite.Data
+namespace backend.Data
 {
     public class DataLayers : DbContext
     {
-        // public DataLayers(DbContextOptions<DataLayers> options)
-        //     : base(options)
-        // {
-        // }
+        public DataLayers(DbContextOptions<DataLayers> options)
+            : base(options)
+        {
+        }
 
         public DbSet<Product> Products { get; set; }
         public DbSet<User> Users { get; set; }

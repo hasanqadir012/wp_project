@@ -1,4 +1,4 @@
-namespace MyWebsite.Services
+namespace backend.Services
 {
     public class EncryptionService : IEncryption
     {

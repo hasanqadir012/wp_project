@@ -1,4 +1,4 @@
-namespace MyWebsite.ViewModels
+namespace backend.ViewModels
 {
     public class ProductViewModel
     {

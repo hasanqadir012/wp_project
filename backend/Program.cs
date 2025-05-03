@@ -1,6 +1,6 @@
-using MyWebsite.Data;
+using backend.Data;
 using Microsoft.EntityFrameworkCore;
-using MyWebsite.Services;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +10,14 @@ builder.Services.AddScoped<IEncryption, EncryptionService>();
 
 builder.Services.AddDbContext<DataLayers>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalHost3000", policy =>
+        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()
+    );
+});
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -35,6 +43,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("AllowLocalHost3000");
+
 app.UseAuthentication(); 
 app.UseAuthorization();
 app.UseSession();  
@@ -46,5 +56,12 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<DataLayers>();
+    context.Database.EnsureCreated();
+}
 
 app.Run();

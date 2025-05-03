@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MyWebsite.Models
+namespace backend.Models
 {
     public class ProductCategoryViewModel
     {
