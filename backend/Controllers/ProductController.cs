@@ -2,14 +2,16 @@ using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Data;
 using MyWebsite.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Collections.Generic;
-using System;
 using MyWebsite.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MyWebsite.Controllers
 {
-    public class ProductController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductController : ControllerBase
     {
         private readonly DataLayers _context;
 
@@ -18,7 +20,8 @@ namespace MyWebsite.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult GetAllProducts()
         {
             var viewModel = new ProductCategoryViewModel
             {
@@ -26,27 +29,29 @@ namespace MyWebsite.Controllers
                 Categories = _context.Categories.ToList()
             };
 
-            return View(viewModel);
+            return Ok(viewModel);
         }
 
-        public IActionResult PopularProducts()
+        [HttpGet("popular")]
+        public IActionResult GetPopularProducts()
         {
             var products = _context.Products
                 .OrderByDescending(p => p.SoldQuantity)
                 .Take(5)
                 .ToList();
 
-            return View(products);
+            return Ok(products);
         }
 
-        [HttpGet]
-        public IActionResult Create()
+        [HttpGet("categories")]
+        public IActionResult GetCategories()
         {
-            ViewBag.Categories = _context.Categories.ToList();
-            return View();
+            var categories = _context.Categories.ToList();
+            return Ok(categories);
         }
 
-        public ActionResult SearchPerfume(string searchTerm)
+        [HttpGet("search")]
+        public IActionResult SearchPerfume([FromQuery] string searchTerm)
         {
             var products = _context.Products
                 .Include(p => p.Category)
@@ -60,17 +65,18 @@ namespace MyWebsite.Controllers
                 SelectedCategory = "Search Results"
             };
 
-            return View("CategoryProducts", viewModel);
+            return Ok(viewModel);
         }
 
-        public ActionResult DisplayPerfumeCategory(string category)
+        [HttpGet("category")]
+        public IActionResult DisplayPerfumeCategory([FromQuery] string category)
         {
             IQueryable<Product> productQuery = _context.Products.Include(p => p.Category);
 
             switch (category.ToLower())
             {
                 case "all collections":
-                    // Do not filter
+                    // no filter
                     break;
 
                 case "best selling":
@@ -98,12 +104,13 @@ namespace MyWebsite.Controllers
                 SelectedCategory = category
             };
 
-            return View("CategoryProducts", viewModel);
+            return Ok(viewModel);
         }
 
-        private List<string> GetCategoryList()
+        [HttpGet("category-list")]
+        public IActionResult GetCategoryList()
         {
-            return new List<string>
+            var list = new List<string>
             {
                 "All Collections",
                 "Men",
@@ -112,6 +119,8 @@ namespace MyWebsite.Controllers
                 "Best Selling",
                 "New Arrivals"
             };
+
+            return Ok(list);
         }
     }
 }

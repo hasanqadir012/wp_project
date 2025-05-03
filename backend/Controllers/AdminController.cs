@@ -8,15 +8,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using MyWebsite.Data;
-using MyWebsite.Models;
-using MyWebsite.ViewModels;
+using backend.Data;
+using backend.Models;
+using backend.ViewModels;
 
-
-namespace MyWebsite.Controllers
+namespace backend.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     [Authorize(Roles = "Admin")]
-    public class AdminController : Controller
+    public class AdminController : ControllerBase
     {
         private readonly DataLayers _db;
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -27,86 +28,77 @@ namespace MyWebsite.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        public async Task<IActionResult> Products()
+        [HttpGet("products")]
+        public async Task<IActionResult> GetProducts()
         {
             var products = await _db.Products
                 .Include(p => p.Category)
-                .Include(p => p.ImageUrl) 
+                .Include(p => p.ImageUrl)
                 .ToListAsync();
-            return View(products);
+            return Ok(products);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProduct(ProductViewModel model)
+        [HttpPost("products")]
+        public async Task<IActionResult> CreateProduct([FromForm] ProductViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var product = new Product
             {
-                var product = new Product
-                {
-                    Name = model.Name,
-                    Description = model.Description,
-                    Price = model.Price,
-                    CategoryId = model.CategoryId,
-                    StockQuantity = model.StockQuantity,
-                    IsAvailable = model.IsAvailable,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
+                Name = model.Name,
+                Description = model.Description,
+                Price = model.Price,
+                CategoryId = model.CategoryId,
+                StockQuantity = model.StockQuantity,
+                IsAvailable = model.IsAvailable,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
 
-                _db.Products.Add(product);
-                await _db.SaveChangesAsync();
+            _db.Products.Add(product);
+            await _db.SaveChangesAsync();
 
-                await UploadProductImages(model.Images, product.Id);
-                return RedirectToAction(nameof(Products));
-            }
+            await UploadProductImages(model.Images, product.Id);
 
-            return View(model);
+            return Ok(product);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProduct(int id, ProductUpdateViewModel model)
+        [HttpPut("products/{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductUpdateViewModel model)
         {
             var product = await _db.Products.FindAsync(id);
             if (product == null) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                product.Name = model.Name;
-                product.Description = model.Description;
-                product.Price = model.Price;
-                product.CategoryId = model.CategoryId;
-                product.StockQuantity = model.StockQuantity;
-                product.IsAvailable = model.IsAvailable;
-                product.UpdatedAt = DateTime.Now;
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Products));
-            }
+            product.Name = model.Name;
+            product.Description = model.Description;
+            product.Price = model.Price;
+            product.CategoryId = model.CategoryId;
+            product.StockQuantity = model.StockQuantity;
+            product.IsAvailable = model.IsAvailable;
+            product.UpdatedAt = DateTime.Now;
 
-            return View(model);
+            await _db.SaveChangesAsync();
+
+            return Ok(product);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpDelete("products/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product == null) return NotFound();
 
-            if (product != null)
-            {
-                DeleteImageFromStorage(product.ImageUrl);
+            DeleteImageFromStorage(product.ImageUrl);
+            _db.Products.Remove(product);
+            await _db.SaveChangesAsync();
 
-                _db.Products.Remove(product);
-                await _db.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Products));
+            return NoContent();
         }
 
-
-        public async Task<IActionResult> Orders()
+        [HttpGet("orders")]
+        public async Task<IActionResult> GetOrders()
         {
             var orders = await _db.Orders
                 .Include(o => o.OrderItems)
@@ -115,35 +107,38 @@ namespace MyWebsite.Controllers
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
-            return View(orders);
+            return Ok(orders);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, string newStatus)
+        [HttpPut("orders/{orderId}/status")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromQuery] string newStatus)
         {
             var order = await _db.Orders.FindAsync(orderId);
-            if (order != null && Enum.TryParse<OrderStatus>(newStatus, true, out var status))
+            if (order == null) return NotFound();
+
+            if (Enum.TryParse<OrderStatus>(newStatus, true, out var status))
             {
                 order.OrderStatus = status;
                 order.updatedAt = DateTime.Now;
                 await _db.SaveChangesAsync();
+                return Ok(order);
             }
 
-            return RedirectToAction(nameof(Orders));
+            return BadRequest("Invalid order status.");
         }
 
-
-        public async Task<IActionResult> InventoryReport()
+        [HttpGet("inventory-report")]
+        public async Task<IActionResult> GetInventoryReport()
         {
             var lowStock = await _db.Products
                 .Where(p => p.StockQuantity < 10)
                 .ToListAsync();
 
-            return View(lowStock);
+            return Ok(lowStock);
         }
 
-        public async Task<IActionResult> Dashboard()
+        [HttpGet("dashboard")]
+        public async Task<IActionResult> GetDashboard()
         {
             var vm = new DashboardViewModel
             {
@@ -164,7 +159,7 @@ namespace MyWebsite.Controllers
                     .ToListAsync()
             };
 
-            return View(vm);
+            return Ok(vm);
         }
 
         private async Task UploadProductImages(IEnumerable<IFormFile> files, int productId)
@@ -184,6 +179,7 @@ namespace MyWebsite.Controllers
                         await file.CopyToAsync(fileStream);
                     }
 
+                    // Save image path to DB if needed
                 }
             }
 

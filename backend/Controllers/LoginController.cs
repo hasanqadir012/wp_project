@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Models;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
@@ -8,13 +7,17 @@ using System.Threading.Tasks;
 using MyWebsite.Data;
 using MyWebsite.Helpers;
 using MyWebsite.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MyWebsite.Controllers
 {
-    public class LoginController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class LoginController : ControllerBase
     {
         private readonly DataLayers _context;
-        string encrypted = Encryption.Encrypt(password);
+        private readonly IEncryption _encryption;
 
         public LoginController(DataLayers context, IEncryption encryption)
         {
@@ -22,16 +25,11 @@ namespace MyWebsite.Controllers
             _encryption = encryption;
         }
 
-        [HttpGet]
-        public IActionResult Login()
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginViewModel model)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Login(UserLoginViewModel model)
-        {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var encryptedPassword = _encryption.Encrypt(model.Password);
             var user = _context.Users.FirstOrDefault(u => u.Username == model.Username && u.Password == encryptedPassword);
@@ -53,38 +51,29 @@ namespace MyWebsite.Controllers
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
 
-                return RedirectToAction("Index", "Home");
+                return Ok(new { message = "Login successful", user = user.Username });
             }
 
-            ModelState.AddModelError("", "Invalid login attempt.");
-            return View(model);
+            return Unauthorized(new { message = "Invalid login attempt." });
         }
 
-        [HttpPost]
+        [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
             HttpContext.Session.Clear();
-            return RedirectToAction("Login", "Login");
+            return Ok(new { message = "Logged out successfully" });
         }
 
-        [HttpGet]
-        public IActionResult Register()
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] UserRegisterViewModel model)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Register(UserRegisterViewModel model)
-        {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var existingUser = _context.Users.FirstOrDefault(u => u.Username == model.Username);
             if (existingUser != null)
-            {
-                ModelState.AddModelError("Username", "Username already exists.");
-                return View(model);
-            }
+                return Conflict(new { message = "Username already exists." });
 
             var newUser = new User
             {
@@ -100,7 +89,7 @@ namespace MyWebsite.Controllers
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
-            return RedirectToAction("Login");
+            return Ok(new { message = "Registration successful" });
         }
     }
 }

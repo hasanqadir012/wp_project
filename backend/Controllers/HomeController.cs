@@ -1,26 +1,25 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyWebsite.Models;
-using MyWebsite.Data;
 using Microsoft.EntityFrameworkCore;
+using MyWebsite.Data;
+using MyWebsite.Models;
 using MyWebsite.ViewModels;
+using System.Diagnostics;
 
 namespace MyWebsite.Controllers
 {
-    public class HomeController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class HomeController : ControllerBase
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly DataLayers _context;
 
-        public HomeController(
-            ILogger<HomeController> logger,
-            DataLayers context)
+        public HomeController(DataLayers context)
         {
-            _logger = logger;
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        [HttpGet("index")]
+        public async Task<IActionResult> GetHomeData()
         {
             var featuredProducts = await _context.Products
                 .Include(p => p.Category)
@@ -33,32 +32,36 @@ namespace MyWebsite.Controllers
                 .Take(4)
                 .ToListAsync();
 
+            var categories = await _context.Categories.ToListAsync();
+
             var viewModel = new HomeViewModel
             {
                 FeaturedProducts = featuredProducts,
                 NewArrivals = newArrivals,
-                Categories = await _context.Categories.ToListAsync()
+                Categories = categories
             };
 
-            return View(viewModel);
+            return Ok(viewModel);
         }
 
-        public IActionResult About()
+        [HttpGet("about")]
+        public IActionResult GetAbout()
         {
-            return View();
+            return Ok(new { Page = "About", Message = "This is the About page." });
         }
 
-        public IActionResult Contact()
+        [HttpGet("contact")]
+        public IActionResult GetContact()
         {
-            return View();
+            return Ok(new { Page = "Contact", Message = "This is the Contact page." });
         }
 
-        public async Task<IActionResult> Shop(string category = null, int page = 1)
+        [HttpGet("shop")]
+        public async Task<IActionResult> GetShop([FromQuery] string category = null, [FromQuery] int page = 1)
         {
             const int pageSize = 12;
-            
-            IQueryable<Product> products = _context.Products
-                .Include(p => p.Category);
+
+            IQueryable<Product> products = _context.Products.Include(p => p.Category);
 
             if (!string.IsNullOrEmpty(category))
             {
@@ -70,25 +73,24 @@ namespace MyWebsite.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
+            var totalItems = await products.CountAsync();
+
             var viewModel = new ShopViewModel
             {
                 Products = paginatedProducts,
                 CurrentCategory = category,
                 CurrentPage = page,
-                TotalPages = (int)Math.Ceiling(products.Count() / (double)pageSize),
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
                 Categories = await _context.Categories.ToListAsync()
             };
 
-            return View(viewModel);
+            return Ok(viewModel);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpGet("error")]
+        public IActionResult GetError()
         {
-            return View(new ErrorViewModel 
-            { 
-                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
-            });
+            return Problem(detail: "An error occurred.", statusCode: 500);
         }
     }
 }
