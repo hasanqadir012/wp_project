@@ -1,1 +1,24 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
+POST http://localhost:5022/api/login
+Content-Type: application/json
+
+{
+    "Username": "umarorakzai012",
+    "Password": "DoingGood",
+    "RememberMe": false
+}
+
+###
+
+POST http://localhost:5022/api/login/register
+Content-Type: application/json
+
+{
+    "Password": "DoingGood",
+    "Username": "umarorakzai012",
+    "Email": "umarorakzai@gmail.com",
+    "LastName": "Orakzai",
+    "FirstName": "Muhammad Umar",
+    "PhoneNumber": "+923350052201",
+    "ConfirmPassword": "DoingGood"
+}
