@@ -1,123 +1,106 @@
-using labs.Models;
-using System;
+using Microsoft.AspNetCore.Mvc;
+using MyWebsite.Models;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Security;
-using labs.Dal;
-using labs.ModelView;
-using labs.Classes;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using MyWebsite.Data;
+using MyWebsite.Helpers;
+using MyWebsite.Services;
 
-namespace labs.Controllers
+namespace MyWebsite.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly DataLayers _db = new DataLayers();
-        private readonly Encryption _encryption = new Encryption();
+        private readonly DataLayers _context;
+        string encrypted = Encryption.Encrypt(password);
 
-        [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        public LoginController(DataLayers context, IEncryption encryption)
         {
-            ViewBag.ReturnUrl = returnUrl;
+            _context = context;
+            _encryption = encryption;
+        }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
             return View();
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult Authenticate(UserLoginViewModel model, string returnUrl)
+        public async Task<IActionResult> Login(UserLoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+
+            var encryptedPassword = _encryption.Encrypt(model.Password);
+            var user = _context.Users.FirstOrDefault(u => u.Username == model.Username && u.Password == encryptedPassword);
+
+            if (user != null)
             {
-                return View("Login", model);
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim("UserId", user.Id.ToString()),
+                    new Claim("IsAdmin", user.IsAdmin ? "true" : "false")
+                };
+
+                var identity = new ClaimsIdentity(claims, "Login");
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(principal);
+
+                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("UserId", user.Id.ToString());
+
+                return RedirectToAction("Index", "Home");
             }
 
-            var user = _db.Users.FirstOrDefault(u => u.UserName == model.UserName);
-            if (user == null)
-            {
-                ModelState.AddModelError("", "Invalid username or password");
-                return View("Login", model);
-            }
-
-            if (!_encryption.ValidatePassword(model.Password, user.Password))
-            {
-                ModelState.AddModelError("", "Invalid username or password");
-                return View("Login", model);
-            }
-
-            FormsAuthentication.SetAuthCookie(user.UserName, model.RememberMe);
-
-            Session["UserId"] = user.UserId;
-            Session["UserName"] = user.UserName;
-            
-            if (user.Admin) 
-            {
-                Session["Admin"] = true;
-                return RedirectToAction("Index", "Admin");
-            }
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction("Index", "Home");
-        }
-
-        [Authorize]
-        public ActionResult LogOff()
-        {
-            FormsAuthentication.SignOut();
-            Session.Clear();
-            return RedirectToAction("Index", "Home");
-        }
-
-        [AllowAnonymous]
-        public ActionResult Register()
-        {
-            return View(new UserRegisterViewModel());
+            ModelState.AddModelError("", "Invalid login attempt.");
+            return View(model);
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult Submit(UserRegisterViewModel model)
+        public async Task<IActionResult> Logout()
         {
-            if (!ModelState.IsValid)
+            await HttpContext.SignOutAsync();
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Login");
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Register(UserRegisterViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var existingUser = _context.Users.FirstOrDefault(u => u.Username == model.Username);
+            if (existingUser != null)
             {
-                return View("Register", model);
+                ModelState.AddModelError("Username", "Username already exists.");
+                return View(model);
             }
 
-            if (_db.Users.Any(u => u.UserName == model.UserName))
+            var newUser = new User
             {
-                ModelState.AddModelError("UserName", "Username already exists");
-                return View("Register", model);
-            }
+                Username = model.Username,
+                Password = _encryption.Encrypt(model.Password),
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber,
+                IsAdmin = false
+            };
 
-            try
-            {
-                var newUser = new User
-                {
-                    UserName = model.UserName,
-                    Password = _encryption.CreateHash(model.Password),
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    PhoneNumber = model.PhoneNumber,
-                    Admin = false, 
-                    CreatedAt = DateTime.Now
-                };
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
 
-                _db.Users.Add(newUser);
-                _db.SaveChanges();
-
-                FormsAuthentication.SetAuthCookie(newUser.UserName, false);
-                return RedirectToAction("Index", "Home");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "An error occurred during registration. Please try again.");
-                return View("Register", model);
-            }
+            return RedirectToAction("Login");
         }
     }
 }

@@ -1,77 +1,104 @@
-using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using MyWebsite.Data;
+using MyWebsite.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using System.Web.Mvc;
-using labs.Models;
-using labs.ModelView;
-using labs.Dal;
+using System.Collections.Generic;
+using System;
+using MyWebsite.ViewModels;
 
-namespace labs.Controllers
+namespace MyWebsite.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly DataLayers _dal = new DataLayers();
+        private readonly DataLayers _context;
 
-        public ActionResult ShowSearch()
+        public ProductController(DataLayers context)
         {
-            ProductViewModel cvm = new ProductViewModel
+            _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            var viewModel = new ProductCategoryViewModel
             {
-                Products = new List<Product>(),
-                Categories = GetCategoryList() 
+                Products = _context.Products.Include(p => p.Category).ToList(),
+                Categories = _context.Categories.ToList()
             };
-            return View("SearchPerfume", cvm);
+
+            return View(viewModel);
+        }
+
+        public IActionResult PopularProducts()
+        {
+            var products = _context.Products
+                .OrderByDescending(p => p.SoldQuantity)
+                .Take(5)
+                .ToList();
+
+            return View(products);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Categories = _context.Categories.ToList();
+            return View();
         }
 
         public ActionResult SearchPerfume(string searchTerm)
         {
-            var products = _dal.Products
+            var products = _context.Products
+                .Include(p => p.Category)
                 .Where(p => p.Name.Contains(searchTerm))
                 .ToList();
 
-            var cvm = new ProductViewModel
+            var viewModel = new ProductCategoryViewModel
             {
                 Products = products,
-                Categories = GetCategoryList()
+                Categories = _context.Categories.ToList(),
+                SelectedCategory = "Search Results"
             };
 
-            return View(cvm);
+            return View("CategoryProducts", viewModel);
         }
 
         public ActionResult DisplayPerfumeCategory(string category)
         {
-            IQueryable<Product> productQuery = _dal.Products;
+            IQueryable<Product> productQuery = _context.Products.Include(p => p.Category);
 
             switch (category.ToLower())
             {
                 case "all collections":
+                    // Do not filter
                     break;
-                    
+
                 case "best selling":
                     productQuery = productQuery
                         .OrderByDescending(p => p.SoldQuantity)
-                        .Take(20); 
+                        .Take(20);
                     break;
-                    
+
                 case "new arrivals":
                     productQuery = productQuery
                         .Where(p => p.CreatedAt >= DateTime.Now.AddMonths(-1))
                         .OrderByDescending(p => p.CreatedAt);
                     break;
-                    
-                default: 
+
+                default:
                     productQuery = productQuery
                         .Where(p => p.Category.Name.ToLower() == category.ToLower());
                     break;
             }
 
-            var cvm = new ProductViewModel
+            var viewModel = new ProductCategoryViewModel
             {
                 Products = productQuery.ToList(),
-                Categories = GetCategoryList(),
+                Categories = _context.Categories.ToList(),
                 SelectedCategory = category
             };
 
-            return View("CategoryProducts", cvm);
+            return View("CategoryProducts", viewModel);
         }
 
         private List<string> GetCategoryList()

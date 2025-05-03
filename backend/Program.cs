@@ -1,16 +1,22 @@
+using MyWebsite.Data;
+using Microsoft.EntityFrameworkCore;
+using MyWebsite.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IEncryption, EncryptionService>();
+
 builder.Services.AddDbContext<DataLayers>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
 
 var app = builder.Build();
 

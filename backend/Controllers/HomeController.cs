@@ -1,19 +1,20 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyWebsite.Data;
-using MyWebsite.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using MyWebsite.Models;
+using MyWebsite.Data;
+using Microsoft.EntityFrameworkCore;
+using MyWebsite.ViewModels;
 
 namespace MyWebsite.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context;
+        private readonly DataLayers _context;
 
         public HomeController(
             ILogger<HomeController> logger,
-            ApplicationDbContext context)
+            DataLayers context)
         {
             _logger = logger;
             _context = context;
