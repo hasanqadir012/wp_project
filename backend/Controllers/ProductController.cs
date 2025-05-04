@@ -22,8 +22,7 @@ namespace backend.Controllers
         {
             var viewModel = new ProductCategoryViewModel
             {
-                Products = _context.Products.Include(p => p.Category).ToList(),
-                Categories = _context.Categories.ToList()
+                Products = [.. _context.Products.Include(p => p.Category)],
             };
 
             return Ok(viewModel);
@@ -40,35 +39,18 @@ namespace backend.Controllers
             return Ok(products);
         }
 
-        [HttpGet("categories")]
-        public IActionResult GetCategories()
-        {
-            var categories = _context.Categories.ToList();
-            return Ok(categories);
-        }
-
         [HttpGet("search")]
-        public IActionResult SearchPerfume([FromQuery] string searchTerm)
+        public IActionResult SearchPerfume(
+            [FromQuery] string searchTerm = "",
+            [FromQuery] string category = "all collections",
+            [FromQuery] decimal priceLow = 0,
+            [FromQuery] decimal priceHigh = 10000)
         {
-            var products = _context.Products
+            var productQuery = _context.Products
                 .Include(p => p.Category)
                 .Where(p => p.Name.Contains(searchTerm))
-                .ToList();
-
-            var viewModel = new ProductCategoryViewModel
-            {
-                Products = products,
-                Categories = _context.Categories.ToList(),
-                SelectedCategory = "Search Results"
-            };
-
-            return Ok(viewModel);
-        }
-
-        [HttpGet("category")]
-        public IActionResult DisplayPerfumeCategory([FromQuery] string category)
-        {
-            IQueryable<Product> productQuery = _context.Products.Include(p => p.Category);
+                .Where(p => p.Price > priceLow)
+                .Where(p => p.Price < priceHigh);
 
             switch (category.ToLower())
             {
@@ -96,9 +78,7 @@ namespace backend.Controllers
 
             var viewModel = new ProductCategoryViewModel
             {
-                Products = productQuery.ToList(),
-                Categories = _context.Categories.ToList(),
-                SelectedCategory = category
+                Products = [.. productQuery],
             };
 
             return Ok(viewModel);
