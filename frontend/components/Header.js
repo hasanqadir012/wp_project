@@ -90,7 +90,7 @@ export default function Header() {
                   </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
-                      <Link href="/admin/dashboard">Admin Dashboard</Link>
+                      <Link href="/admin">Admin Dashboard</Link>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem asChild>

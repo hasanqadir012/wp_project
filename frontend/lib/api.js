@@ -7,19 +7,13 @@ async function fetchAPI(endpoint, options = {}) {
   // Set default headers
   const headers = {
     'Content-Type': 'application/json',
+    credentials: 'include',
     ...options.headers,
   };
   
-  // Include authentication token if available
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-  }
-  
   const config = {
     ...options,
+    credentials: 'include',
     headers,
   };
   
@@ -87,7 +81,8 @@ export const productApi = {
 export const authApi = {
   login: (credentials) => fetchAPI('/Login/login', {
     method: 'POST',
-    body: JSON.stringify(credentials)
+    body: JSON.stringify(credentials),
+    credentials: 'include',
   }),
   logout: () => fetchAPI('/Login/logout', {
     method: 'POST'
