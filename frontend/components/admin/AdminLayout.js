@@ -1,4 +1,4 @@
-import { Toaster } from '@/components/ui/sonner';
+// import { Toaster } from '@/components/ui/sonner';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 
@@ -12,7 +12,7 @@ export default function AdminLayout({ children }) {
           {children}
         </main>
       </div>
-      <Toaster />
+      {/* <Toaster /> */}
     </div>
   );
 }

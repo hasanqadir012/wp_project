@@ -20,11 +20,11 @@ export default function ProductCard({ product }) {
   };
 
   // Default placeholder image
-  const imageUrl = product.imageUrl || '/placeholder-perfume.jpg';
+  const imageUrl = product.imageUrl || '/perfume.jpeg';
 
   return (
     <Card className="h-full flex flex-col overflow-hidden">
-      <Link href={`/shop/product/${product.id}`}>
+      <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={imageUrl}

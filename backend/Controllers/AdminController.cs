@@ -40,7 +40,10 @@ namespace backend.Controllers
                 Name = model.Name,
                 Description = model.Description,
                 Price = model.Price,
-                CategoryId = model.CategoryId,
+                CategoryId = _db.Categories
+                    .Where(c => c.Name.ToLower() == model.CategoryName.ToLower())
+                    .ToList()[0]
+                    .CategoryId,
                 StockQuantity = model.StockQuantity,
                 IsAvailable = model.IsAvailable,
                 CreatedAt = DateTime.Now,
@@ -50,9 +53,10 @@ namespace backend.Controllers
             _db.Products.Add(product);
             await _db.SaveChangesAsync();
 
-            await UploadProductImages(model.Images, product.Id);
+            if(model.Images != null)
+                await UploadProductImages(model.Images, product.Id);
 
-            return Ok(product);
+            return Ok(new { message = "Product Added"});
         }
 
         [HttpPut("products/{id}")]

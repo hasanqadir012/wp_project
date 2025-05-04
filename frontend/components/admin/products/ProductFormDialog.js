@@ -28,10 +28,9 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
     name: '',
     description: '',
     price: '',
-    categoryId: '',
+    categoryName: '',
     stockQuantity: '',
     isAvailable: true,
-    isFeatured: false,
     images: []
   });
   const [categories, setCategories] = useState([]);
@@ -51,10 +50,9 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
         name: initialData.name || '',
         description: initialData.description || '',
         price: initialData.price || '',
-        categoryId: initialData.categoryId || '',
+        categoryName: initialData.categoryName || '',
         stockQuantity: initialData.stockQuantity || '',
         isAvailable: initialData.isAvailable ?? true,
-        isFeatured: initialData.isFeatured ?? false,
         images: []
       });
     } else {
@@ -87,10 +85,9 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
       name: '',
       description: '',
       price: '',
-      categoryId: '',
+      categoryName: '',
       stockQuantity: '',
       isAvailable: true,
-      isFeatured: false,
       images: []
     });
     setSelectedFiles([]);
@@ -138,7 +135,7 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.price) newErrors.price = 'Price is required';
     if (isNaN(formData.price) || Number(formData.price) <= 0) newErrors.price = 'Price must be a positive number';
-    if (!formData.categoryId) newErrors.categoryId = 'Category is required';
+    if (!formData.categoryName) newErrors.categoryName = 'Category is required';
     if (!formData.stockQuantity) newErrors.stockQuantity = 'Stock quantity is required';
     if (isNaN(formData.stockQuantity) || Number(formData.stockQuantity) < 0) newErrors.stockQuantity = 'Stock quantity must be a non-negative number';
     
@@ -153,7 +150,15 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
     
     setLoading(true);
     try {
-      await onSubmit(formData);
+      await onSubmit({
+        name: formData.name,
+        description: formData.description,
+        price: Number(formData.price),
+        categoryName: formData.categoryName,
+        stockQuantity: Number(formData.stockQuantity),
+        isAvailable: formData.isAvailable,
+        images: formData.images
+      });
       onOpenChange(false);
       resetForm();
     } catch (error) {
@@ -179,7 +184,7 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
           <div className="grid grid-cols-2 gap-4">
             {/* Product Name */}
             <div className="col-span-2">
-              <Label htmlFor="name">Product Name</Label>
+              <Label htmlFor="name" className="mb-1">Product Name</Label>
               <Input
                 id="name"
                 name="name"
@@ -192,7 +197,7 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
             
             {/* Description */}
             <div className="col-span-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="mb-1">Description</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -206,7 +211,7 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
             
             {/* Price & Category */}
             <div>
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price" className="mb-1">Price ($)</Label>
               <Input
                 id="price"
                 name="price"
@@ -220,17 +225,17 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
             </div>
             
             <div>
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category" className="mb-1">Category</Label>
               <Select
-                value={formData.categoryId}
-                onValueChange={(value) => handleSelectChange('categoryId', value)}
+                value={formData.categoryName}
+                onValueChange={(value) => handleSelectChange('categoryName', value)}
               >
-                <SelectTrigger className={errors.categoryId ? 'border-red-500' : ''}>
+                <SelectTrigger className={errors.categoryName ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
+                    <SelectItem key={category.id} value={category.name}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -241,7 +246,7 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
             
             {/* Stock Quantity */}
             <div>
-              <Label htmlFor="stockQuantity">Stock Quantity</Label>
+              <Label htmlFor="stockQuantity" className="mb-1">Stock Quantity</Label>
               <Input
                 id="stockQuantity"
                 name="stockQuantity"
@@ -254,7 +259,7 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
             </div>
             
             {/* Available Switch */}
-            <div className="flex items-center justify-end space-x-2 pt-6">
+            <div className="flex items-center justify-end space-x-2">
               <Label htmlFor="isAvailable" className="cursor-pointer">Available</Label>
               <Switch
                 id="isAvailable"
@@ -264,21 +269,10 @@ export default function ProductFormDialog({ open, onOpenChange, onSubmit, initia
               />
             </div>
             
-            {/* Featured Switch */}
-            <div className="flex items-center justify-end space-x-2 pt-6">
-              <Label htmlFor="isFeatured" className="cursor-pointer">Featured</Label>
-              <Switch
-                id="isFeatured"
-                name="isFeatured"
-                checked={formData.isFeatured}
-                onCheckedChange={(checked) => handleSelectChange('isFeatured', checked)}
-              />
-            </div>
-            
             {/* Image Upload */}
             <div className="col-span-2">
-              <Label htmlFor="images">Product Images</Label>
-              <div className="mt-2 flex items-center">
+              <Label htmlFor="images" className="mb-1">Product Images</Label>
+              <div className="flex items-center">
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <div className="py-2 px-4 border rounded-md border-dashed border-gray-300 flex items-center space-x-2 hover:bg-gray-50 transition-colors">
                     <Upload className="h-5 w-5 text-gray-400" />

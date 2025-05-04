@@ -5,11 +5,16 @@ async function fetchAPI(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   
   // Set default headers
-  const headers = {
-    'Content-Type': 'application/json',
-    credentials: 'include',
-    ...options.headers,
-  };
+  let headers = {};
+  if (!options.body || !(options.body instanceof FormData)) {
+    headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+  } else {
+    // For FormData, use any custom headers but don't set Content-Type
+    headers = { ...options.headers };
+  }
   
   const config = {
     ...options,
@@ -39,9 +44,7 @@ async function fetchAPI(endpoint, options = {}) {
     }
     
     // Handle error response
-    const error = await response.json();
-    throw new Error(error.message || 'API request failed');
-    
+    throw new Error('API request failed: ' + response.title);
   } catch (error) {
     console.error('API Error:', error);
     throw error;
@@ -115,8 +118,7 @@ export const adminApi = {
     
     return fetchAPI('/Admin/products', {
       method: 'POST',
-      headers: {}, // Let browser set content-type for FormData
-      body: formData
+      body: formData,
     });
   },
   updateProduct: (id, productData) => {

@@ -54,6 +54,7 @@ export default function RegisterForm() {
         lastName: formData.lastName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
+        confirmPassword: formData.confirmPassword,
       });
 
       toast({

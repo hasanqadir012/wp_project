@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace backend.Models
 {
@@ -16,8 +17,8 @@ namespace backend.Models
 
         [Required]
         public decimal Price { get; set; }
-
-        public string ImageUrl { get; set; }
+        [AllowNull]
+        public string? ImageUrl { get; set; }
 
         public int CategoryId { get; set; }
         public Category Category { get; set; }
