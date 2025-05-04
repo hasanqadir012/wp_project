@@ -1,6 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5022/api';
 
 // Common fetch function with auth handling
+// Updated fetchAPI function to properly handle validation errors
 async function fetchAPI(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   
@@ -25,16 +26,6 @@ async function fetchAPI(endpoint, options = {}) {
   try {
     const response = await fetch(url, config);
     
-    // Handle 401 Unauthorized globally
-    if (response.status === 401) {
-      // Clear token and redirect to login
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken');
-        window.location.href = '/login';
-        return null;
-      }
-    }
-    
     // Handle successful response
     if (response.ok) {
       if (response.headers.get('content-type')?.includes('application/json')) {
@@ -44,11 +35,49 @@ async function fetchAPI(endpoint, options = {}) {
     }
     
     // Handle error response
-    throw new Error('API request failed: ' + response.title);
+    const errorData = await response.json().catch(() => ({}));
+    
+    // Create more descriptive error with validation messages
+    const errorMessage = createErrorMessage(errorData);
+    const error = new Error(errorMessage);
+    error.statusCode = response.status;
+    error.data = errorData;
+    throw error;
   } catch (error) {
-    console.error('API Error:', error);
     throw error;
   }
+}
+
+// Helper function to create a meaningful error message from the API response
+function createErrorMessage(errorData) {
+  // If there's no error data, return a generic message
+  if (!errorData || Object.keys(errorData).length === 0) {
+    return 'An error occurred while processing your request';
+  }
+
+  // If the response contains validation errors
+  if (errorData.errors && typeof errorData.errors === 'object') {
+    // Collect all validation error messages
+    const validationErrors = [];
+    Object.entries(errorData.errors).forEach(([field, messages]) => {
+      if (Array.isArray(messages)) {
+        messages.forEach(message => {
+          validationErrors.push(message);
+        });
+      }
+    });
+
+    if (validationErrors.length > 0) {
+      return validationErrors.join('\n');
+    }
+  }
+
+  // If there's a title or message in the response, use that
+  if (errorData.title) return errorData.title;
+  if (errorData.message) return errorData.message;
+  
+  // Fallback to a generic error message
+  return 'Something went wrong. Please try again.';
 }
 
 // Home API

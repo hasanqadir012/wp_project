@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ export default function RegisterForm() {
     phoneNumber: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -29,13 +31,18 @@ export default function RegisterForm() {
       ...prev,
       [name]: value,
     }));
+    
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     
     // Validate form
     if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
       toast({
         title: 'Error',
         description: 'Passwords do not match.',
@@ -64,6 +71,7 @@ export default function RegisterForm() {
 
       router.push('/login');
     } catch (error) {
+      setError(error.message || 'Registration failed. Please try again.');
       toast({
         title: 'Error',
         description: error.message || 'Registration failed. Please try again.',
@@ -76,6 +84,12 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription className="whitespace-pre-line">{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="firstName">First Name</Label>

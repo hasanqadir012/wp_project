@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { formatCurrency } from '@/lib/utils'
 import { MinusIcon, PlusIcon, ShoppingCart, Heart, Share2 } from 'lucide-react'
 
@@ -31,9 +30,6 @@ export default function ProductDetailPage() {
       setLoading(true)
       try {
         const product = (await productApi.getProduct(params.id))[0]
-        console.log('Fetched product:', product);
-        
-        
         if (!product) {
           setError('Product not found')
           return

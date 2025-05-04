@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ export default function LoginForm() {
     rememberMe: false,
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const router = useRouter();
 
@@ -27,11 +29,15 @@ export default function LoginForm() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
       await login({
@@ -39,6 +45,7 @@ export default function LoginForm() {
         password: formData.password,
         rememberMe: formData.rememberMe,
       });
+      
 
       toast({
         title: 'Success',
@@ -47,6 +54,7 @@ export default function LoginForm() {
 
       router.push('/');
     } catch (error) {
+      setError(error.message || 'Login failed. Please try again.');
       toast({
         title: 'Error',
         description: error.message || 'Login failed. Please try again.',
@@ -59,6 +67,12 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription className="whitespace-pre-line">{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="username">Username</Label>
         <Input

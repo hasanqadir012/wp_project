@@ -40,6 +40,24 @@ export default function ProductsPage() {
     fetchCategories()
   }, [])
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true)
+      
+      try {
+        const data = await productApi.searchProducts();
+        
+        setProducts(data.products);
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
   const handleSubmit = (e) => {
     e.preventDefault()
     const params = new URLSearchParams(searchParams)
