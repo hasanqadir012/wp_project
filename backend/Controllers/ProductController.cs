@@ -28,6 +28,14 @@ namespace backend.Controllers
             return Ok(viewModel);
         }
 
+        [HttpGet("{id:int}")]
+        public IActionResult GetProducts(int id)
+        {
+            var product = _context.Products.Where(p => p.Id == id).Include(p => p.Category).ToList();
+
+            return Ok(product);
+        }
+
         [HttpGet("popular")]
         public IActionResult GetPopularProducts()
         {

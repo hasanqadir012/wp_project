@@ -70,6 +70,7 @@ export const homeApi = {
 // Product API
 export const productApi = {
   getAllProducts: () => fetchAPI('/Product'),
+  getProduct: (id) => fetchAPI(`/Product/${id}`),
   getPopularProducts: () => fetchAPI('/Product/popular'),
   getCategories: () => fetchAPI('/Product/category-list'),
   searchProducts: (searchTerm, category = 'all collections', priceLow, priceHigh) => {
