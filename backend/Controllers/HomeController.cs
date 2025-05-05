@@ -56,37 +56,6 @@ namespace backend.Controllers
             return Ok(new { Page = "Contact", Message = "This is the Contact page." });
         }
 
-        [HttpGet("shop")]
-        public async Task<IActionResult> GetShop([FromQuery] string category = null, [FromQuery] int page = 1)
-        {
-            const int pageSize = 12;
-
-            IQueryable<Product> products = _context.Products.Include(p => p.Category);
-
-            if (!string.IsNullOrEmpty(category))
-            {
-                products = products.Where(p => p.Category.Name == category);
-            }
-
-            var paginatedProducts = await products
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var totalItems = await products.CountAsync();
-
-            var viewModel = new ShopViewModel
-            {
-                Products = paginatedProducts,
-                CurrentCategory = category,
-                CurrentPage = page,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
-                Categories = await _context.Categories.ToListAsync()
-            };
-
-            return Ok(viewModel);
-        }
-
         [HttpGet("error")]
         public IActionResult GetError()
         {

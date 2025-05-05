@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5022/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://k224084-001-site1.qtempurl.com/api';
 
 // Common fetch function with auth handling
 // Updated fetchAPI function to properly handle validation errors
@@ -85,12 +85,6 @@ export const homeApi = {
   getHomeData: () => fetchAPI('/Home/index'),
   getAbout: () => fetchAPI('/Home/about'),
   getContact: () => fetchAPI('/Home/contact'),
-  getShop: (category = null, page = 1) => {
-    const params = new URLSearchParams();
-    if (category) params.append('category', category);
-    params.append('page', page);
-    return fetchAPI(`/Home/shop?${params.toString()}`);
-  }
 };
 
 // Product API
@@ -127,7 +121,9 @@ export const authApi = {
 
 // Admin API
 export const adminApi = {
-  getProducts: () => fetchAPI('/Admin/products'),
+  getProducts: () => fetchAPI('/Admin/products', {
+    credentials: 'include',
+  }),
   createProduct: (productData) => {
     const formData = new FormData();
     
@@ -148,6 +144,7 @@ export const adminApi = {
     return fetchAPI('/Admin/products', {
       method: 'POST',
       body: formData,
+      credentials: 'include',
     });
   },
   updateProduct: (id, productData) => {
@@ -170,18 +167,27 @@ export const adminApi = {
     return fetchAPI(`/Admin/products/${id}`, {
       method: 'PUT',
       headers: {}, // Let browser set content-type for FormData
-      body: formData
+      body: formData,
+      credentials: 'include',
     });
   },
   deleteProduct: (id) => fetchAPI(`/Admin/products/${id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    credentials: 'include',
   }),
-  getOrders: () => fetchAPI('/Admin/orders'),
+  getOrders: () => fetchAPI('/Admin/orders', {
+    credentials: 'include',
+  }),
   updateOrderStatus: (orderId, newStatus) => fetchAPI(`/Admin/orders/${orderId}/status?newStatus=${newStatus}`, {
-    method: 'PUT'
+    method: 'PUT',
+    credentials: 'include',
   }),
-  getInventoryReport: () => fetchAPI('/Admin/inventory-report'),
-  getDashboard: () => fetchAPI('/Admin/dashboard')
+  getInventoryReport: () => fetchAPI('/Admin/inventory-report', {
+    credentials: 'include',
+  }),
+  getDashboard: () => fetchAPI('/Admin/dashboard', {
+    credentials: 'include',
+  })
 };
 
 export default {

@@ -5,13 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 import { useCart } from '@/providers/CartProvider';
-import SearchBar from './SearchBar';
 import { 
   ShoppingCart, 
   User, 
   Menu, 
-  X, 
-  Search,
+  X,
   LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

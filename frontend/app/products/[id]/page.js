@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { productApi } from '@/lib/api'
 import { useCart } from '@/providers/CartProvider'
@@ -10,13 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { formatCurrency } from '@/lib/utils'
 import { MinusIcon, PlusIcon, ShoppingCart, Heart, Share2 } from 'lucide-react'
 
 export default function ProductDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const { addToCart } = useCart()
+  const { addToCart, cart, updateQuantity } = useCart()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -30,6 +31,8 @@ export default function ProductDetailPage() {
       setLoading(true)
       try {
         const product = (await productApi.getProduct(params.id))[0]
+        console.log('Fetched product:', product);
+        
         if (!product) {
           setError('Product not found')
           return
@@ -51,10 +54,19 @@ export default function ProductDetailPage() {
     setQuantity(prev => Math.max(1, prev + amount))
   }
 
+  // Use useCallback to prevent recreation of this function on each render
   const handleAddToCart = () => {
     if (product) {
-      addToCart(product, quantity)
-      // Show success notification or feedback
+      const item = cart.find(item => item.id === product.id)
+      
+      if (item) {
+        const newQuantity = item.quantity + quantity
+        if (newQuantity > 0) {
+          updateQuantity(product.id, newQuantity)
+        }
+      } else {
+        addToCart(product, quantity)
+      }
     }
   }
 
@@ -158,7 +170,8 @@ export default function ProductDetailPage() {
               className="flex-1"
               onClick={handleAddToCart}
             >
-              <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
+              <ShoppingCart className="mr-2 h-5 w-5" /> 
+              Add to Cart
             </Button>
             <Button variant="outline" size="icon" className="h-12 w-12">
               <Heart size={20} />
@@ -217,27 +230,6 @@ export default function ProductDetailPage() {
           </TabsContent>
         </Tabs>
       </div>
-      
-      {/* Related Products */}
-      {/* {relatedProducts.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">You may also like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {relatedProducts.map((item) => (
-              <Card key={item.id} className="overflow-hidden cursor-pointer" 
-                onClick={() => router.push(`/products/${item.id}`)}>
-                <div className="h-48 bg-gray-100 flex items-center justify-center">
-                  <div className="text-gray-400">Product Image</div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-medium">{item.name}</h3>
-                  <p className="font-bold mt-1">{formatCurrency(item.price)}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }
