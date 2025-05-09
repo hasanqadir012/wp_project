@@ -156,7 +156,7 @@ export default function Header() {
                   </div>
                   {isAdmin && (
                     <Link 
-                      href="/admin/dashboard" 
+                      href="/admin" 
                       className="text-gray-700 hover:text-indigo-600 transition-colors px-2"
                       onClick={() => setMenuOpen(false)}
                     >

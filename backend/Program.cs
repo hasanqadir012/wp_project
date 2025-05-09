@@ -25,9 +25,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(1);
     options.SlidingExpiration = true;
 
-    options.Cookie.Domain = "convult.com";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SameSite = SameSiteMode.None;
 
     options.Events.OnRedirectToLogin = context =>
     {
@@ -51,7 +50,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalHost3000", policy =>
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(["http://localhost:3000", "https://wpfrontend.convult.com", "https://wp-project-cyan.vercel.app"])
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
