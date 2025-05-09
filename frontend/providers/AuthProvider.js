@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api';
+import { setupTokenExpirationCheck } from '@/lib/tokenUtils';
 
 const AuthContext = createContext();
 
@@ -16,11 +17,16 @@ export function AuthProvider({ children }) {
     const checkAuth = () => {
       try {
         const userData = localStorage.getItem('user');
-        if (userData) {
+        const token = localStorage.getItem('token');
+
+        if (userData && token) {
           setUser(JSON.parse(userData));
+          setupTokenExpirationCheck(logout);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
@@ -42,6 +48,7 @@ export function AuthProvider({ children }) {
       };
       
       localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', response.token);
       setUser(userData);
       
       return response;
@@ -69,17 +76,10 @@ export function AuthProvider({ children }) {
 
   // Logout function
   const logout = async () => {
-    setLoading(true);
-    try {
-      await authApi.logout();
-      localStorage.removeItem('user');
-      setUser(null);
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      setLoading(false);
-    }
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/');
   };
 
   // Auth context value

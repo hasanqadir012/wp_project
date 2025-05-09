@@ -19,16 +19,19 @@ async function fetchAPI(endpoint, options = {}) {
     headers = { ...options.headers };
   }
   
+  const token = localStorage.getItem('token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config = {
     ...options,
-    credentials: 'include',
     headers,
   };
   
   try {
     const response = await fetch(url, config);
     
-    // Handle successful response
     if (response.ok) {
       if (response.headers.get('content-type')?.includes('application/json')) {
         return await response.json();
@@ -36,10 +39,8 @@ async function fetchAPI(endpoint, options = {}) {
       return await response.text();
     }
     
-    // Handle error response
     const errorData = await response.json().catch(() => ({}));
     
-    // Create more descriptive error with validation messages
     const errorMessage = createErrorMessage(errorData);
     const error = new Error(errorMessage);
     error.statusCode = response.status;
@@ -50,16 +51,12 @@ async function fetchAPI(endpoint, options = {}) {
   }
 }
 
-// Helper function to create a meaningful error message from the API response
 function createErrorMessage(errorData) {
-  // If there's no error data, return a generic message
   if (!errorData || Object.keys(errorData).length === 0) {
     return 'An error occurred while processing your request';
   }
 
-  // If the response contains validation errors
   if (errorData.errors && typeof errorData.errors === 'object') {
-    // Collect all validation error messages
     const validationErrors = [];
     Object.entries(errorData.errors).forEach(([field, messages]) => {
       if (Array.isArray(messages)) {
@@ -74,11 +71,9 @@ function createErrorMessage(errorData) {
     }
   }
 
-  // If there's a title or message in the response, use that
   if (errorData.title) return errorData.title;
   if (errorData.message) return errorData.message;
   
-  // Fallback to a generic error message
   return 'Something went wrong. Please try again.';
 }
 
@@ -110,10 +105,6 @@ export const authApi = {
   login: (credentials) => fetchAPI('/Login/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
-    credentials: 'include',
-  }),
-  logout: () => fetchAPI('/Login/logout', {
-    method: 'POST'
   }),
   register: (userData) => fetchAPI('/Login/register', {
     method: 'POST',
@@ -123,9 +114,7 @@ export const authApi = {
 
 // Admin API
 export const adminApi = {
-  getProducts: () => fetchAPI('/Admin/products', {
-    credentials: 'include',
-  }),
+  getProducts: () => fetchAPI('/Admin/products'),
   createProduct: (productData) => {
     const formData = new FormData();
     
@@ -146,7 +135,6 @@ export const adminApi = {
     return fetchAPI('/Admin/products', {
       method: 'POST',
       body: formData,
-      credentials: 'include',
     });
   },
   updateProduct: (id, productData) => {
@@ -168,28 +156,19 @@ export const adminApi = {
     
     return fetchAPI(`/Admin/products/${id}`, {
       method: 'PUT',
-      headers: {}, // Let browser set content-type for FormData
+      headers: {},
       body: formData,
-      credentials: 'include',
     });
   },
   deleteProduct: (id) => fetchAPI(`/Admin/products/${id}`, {
     method: 'DELETE',
-    credentials: 'include',
   }),
-  getOrders: () => fetchAPI('/Admin/orders', {
-    credentials: 'include',
-  }),
+  getOrders: () => fetchAPI('/Admin/orders'),
   updateOrderStatus: (orderId, newStatus) => fetchAPI(`/Admin/orders/${orderId}/status?newStatus=${newStatus}`, {
     method: 'PUT',
-    credentials: 'include',
   }),
-  getInventoryReport: () => fetchAPI('/Admin/inventory-report', {
-    credentials: 'include',
-  }),
-  getDashboard: () => fetchAPI('/Admin/dashboard', {
-    credentials: 'include',
-  })
+  getInventoryReport: () => fetchAPI('/Admin/inventory-report'),
+  getDashboard: () => fetchAPI('/Admin/dashboard')
 };
 
 export default {

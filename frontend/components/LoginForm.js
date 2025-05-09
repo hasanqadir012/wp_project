@@ -45,8 +45,7 @@ export default function LoginForm() {
         password: formData.password,
         rememberMe: formData.rememberMe,
       });
-      
-
+    
       toast({
         title: 'Success',
         description: 'You have successfully logged in.',
