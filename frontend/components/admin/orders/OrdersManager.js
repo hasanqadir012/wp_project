@@ -71,7 +71,7 @@ export default function OrdersManager() {
   // Filter orders based on search term and status
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
-      order.id.toString().includes(searchTerm) || 
+      order.orderId.toString().includes(searchTerm) || 
       (order.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesStatus = statusFilter === 'all' || order.orderStatus === statusFilter;

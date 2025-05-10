@@ -78,10 +78,10 @@ export default function OrdersTable({ orders, loading, onUpdateStatus }) {
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">#{order.id}</TableCell>
+              <TableRow key={order.orderId}>
+                <TableCell className="font-medium">#{order.orderId}</TableCell>
                 <TableCell>{order.user?.username || 'Guest'}</TableCell>
-                <TableCell>{formatDateTime(order.createdAt)}</TableCell>
+                <TableCell>{formatDate(order.createdAt)}</TableCell>
                 <TableCell>{order.orderItems?.length || 0} items</TableCell>
                 <TableCell>{formatCurrency(order.totalAmount)}</TableCell>
                 <TableCell>
@@ -98,27 +98,27 @@ export default function OrdersTable({ orders, loading, onUpdateStatus }) {
                       View
                     </Button>
                     
-                    <Dropdown>
-                      <DropdownTrigger asChild>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm">
                           Status <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
-                      </DropdownTrigger>
-                      <DropdownContent align="end">
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
                         <DropdownMenu>
                           {statusOptions.map((option) => (
-                            <DropdownItem 
+                            <DropdownMenuItem 
                               key={option.value}
                               onClick={() => onUpdateStatus(order.id, option.value)}
                               disabled={order.orderStatus === option.value}
                             >
                               <option.icon className="h-4 w-4 mr-2" />
                               {option.label}
-                            </DropdownItem>
+                            </DropdownMenuItem>
                           ))}
                         </DropdownMenu>
-                      </DropdownContent>
-                    </Dropdown>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>

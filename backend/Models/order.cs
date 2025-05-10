@@ -54,7 +54,7 @@ namespace backend.Models
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}", ApplyFormatInEditMode = true)]
         public DateTime updatedAt { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<OrderItem>? OrderItems { get; set; }
         public virtual User User { get; set; }
 
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 import LoginForm from '@/components/LoginForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export default function LoginPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Redirect if already logged in
   useEffect(() => {
+    const redirectTo = searchParams.get('redirect') || '';
     if (isAuthenticated) {
-      router.push('/');
+      router.push(`/${redirectTo}`);
     }
   }, [isAuthenticated, router]);
 

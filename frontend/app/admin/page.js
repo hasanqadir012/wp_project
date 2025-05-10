@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
-import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardSummary from '@/components/admin/DashboardSummary';
 
 export default function AdminDashboardPage() {
@@ -25,8 +24,6 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <AdminLayout>
-      <DashboardSummary />
-    </AdminLayout>
+    <DashboardSummary />
   );
 }

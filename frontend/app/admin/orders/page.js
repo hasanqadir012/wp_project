@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
-import AdminLayout from '@/components/admin/AdminLayout';
 import OrdersManager from '@/components/admin/orders/OrdersManager';
 
 export default function AdminOrdersPage() {
@@ -24,8 +23,6 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <AdminLayout>
-      <OrdersManager />
-    </AdminLayout>
+    <OrdersManager />
   );
 }

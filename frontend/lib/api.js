@@ -171,9 +171,41 @@ export const adminApi = {
   getDashboard: () => fetchAPI('/Admin/dashboard')
 };
 
+export const checkoutApi = {
+  placeOrder: (orderData) => fetchAPI('/Checkout/place-order', {
+    method: 'POST',
+    body: JSON.stringify(orderData),
+  }),
+
+  getOrderHistory: () => fetchAPI('/Checkout/order-history'),
+
+  getOrderDetails: (orderId) => fetchAPI(`/Checkout/order/${orderId}`),
+
+  getSavedAddresses: () => fetchAPI('/Checkout/addresses'),
+
+  addAddress: (addressData) => fetchAPI('/Checkout/addresses', {
+    method: 'POST',
+    body: JSON.stringify(addressData),
+  }),
+
+  updateAddress: (addressId, addressData) => fetchAPI(`/Checkout/addresses/${addressId}`, {
+    method: 'PUT',
+    body: JSON.stringify(addressData),
+  }),
+
+  deleteAddress: (addressId) => fetchAPI(`/Checkout/addresses/${addressId}`, {
+    method: 'DELETE',
+  }),
+
+  setDefaultAddress: (addressId) => fetchAPI(`/Checkout/addresses/${addressId}/default`, {
+    method: 'PUT',
+  }),
+};
+
 export default {
   home: homeApi,
   product: productApi,
   auth: authApi,
+  checkout: checkoutApi,
   admin: adminApi
 };

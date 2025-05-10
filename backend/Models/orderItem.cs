@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Web;
 
 namespace backend.Models
@@ -28,8 +29,9 @@ namespace backend.Models
 
         [Required]
         [Range(100, 999, ErrorMessage = "Unit price must be between 100-999 shekels")]
-        public int UnitPrice { get; set; }  
+        public int UnitPrice { get; set; }
 
+        [JsonIgnore]
         public virtual Order Order { get; set; }
         public virtual Product Product { get; set; }
     }

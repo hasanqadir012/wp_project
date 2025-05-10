@@ -86,7 +86,8 @@ namespace backend.Controllers
             var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
 
-            DeleteImageFromStorage(product.ImageUrl);
+            if(product.ImageUrl != null)
+                DeleteImageFromStorage(product.ImageUrl);
             _db.Products.Remove(product);
             await _db.SaveChangesAsync();
 
@@ -128,6 +129,7 @@ namespace backend.Controllers
         {
             var lowStock = await _db.Products
                 .Where(p => p.StockQuantity < 10)
+                .Include(p => p.Category)
                 .ToListAsync();
 
             return Ok(lowStock);

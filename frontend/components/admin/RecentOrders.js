@@ -21,14 +21,14 @@ export default function RecentOrders({ orders }) {
     <div className="space-y-4">
       {orders.map((order) => (
         <Link 
-          href={`/admin/orders/${order.id}`} 
-          key={order.id}
+          href={`/admin/orders/${order.orderId}`}
+          key={order.orderId}
           className="block hover:bg-gray-50 rounded-lg p-3 -mx-3 transition-colors"
         >
           <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-medium">Order #{order.id}</span>
+                <span className="font-medium">Order #{order.orderId}</span>
                 <Badge className={statusColors[order.orderStatus] || "bg-gray-100"}>
                   {order.orderStatus}
                 </Badge>

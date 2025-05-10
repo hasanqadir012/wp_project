@@ -3,7 +3,8 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter
+    DialogFooter,
+    DialogDescription
   } from "@/components/ui/dialog";
   import { Button } from "@/components/ui/button";
   import { Separator } from "@/components/ui/separator";
@@ -15,15 +16,18 @@ import {
     if (!order) return null;
   
     const handleStatusChange = (newStatus) => {
-      onUpdateStatus(order.id, newStatus);
+      onUpdateStatus(order.orderId, newStatus);
     };
   
     return (
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogDescription>
+            Order details for order #{order.orderId}
+          </DialogDescription>
           <DialogHeader>
             <DialogTitle className="flex justify-between items-center">
-              <span>Order #{order.id}</span>
+              <span>Order #{order.orderId}</span>
               <OrderStatusBadge status={order.orderStatus} />
             </DialogTitle>
           </DialogHeader>
@@ -41,7 +45,7 @@ import {
             <div>
               <h3 className="font-medium mb-2">Order Details</h3>
               <div className="space-y-1 text-sm">
-                <p><span className="font-medium">Date:</span> {formatDateTime(order.createdAt)}</p>
+                <p><span className="font-medium">Date:</span> {formatDate(order.createdAt)}</p>
                 <p>
                   <span className="font-medium">Status:</span>
                   <OrderStatusSelector 
@@ -82,7 +86,7 @@ import {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {order.orderItems?.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item.orderItemId}>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center">
                           {item.product?.imageUrl && (

@@ -28,6 +28,7 @@ namespace backend.Data
             modelBuilder.Entity<Category>().ToTable("Categories");
             modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
             modelBuilder.Entity<Order>().ToTable("Orders");
+            modelBuilder.Entity<Address>().ToTable("Address");
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)

@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
-import AdminLayout from '@/components/admin/AdminLayout';
 import ProductsManager from '@/components/admin/products/ProductsManager';
 
 export default function AdminProductsPage() {
@@ -13,7 +12,6 @@ export default function AdminProductsPage() {
   // Protect admin routes
   useEffect(() => {
     if (!isAuthenticated) {
-      console.log('Not an admin user, redirecting to home page...');
       router.push('/login');
     } else if (!isAdmin) {
       router.push('/');
@@ -25,8 +23,6 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <AdminLayout>
-      <ProductsManager />
-    </AdminLayout>
+    <ProductsManager />
   );
 }
