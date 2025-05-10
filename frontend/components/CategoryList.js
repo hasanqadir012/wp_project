@@ -16,7 +16,7 @@ export default function CategoryList({ categories }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {categories.map((category) => (
-        <Link key={category.name} href={`/products?category=${category.name.toLowerCase()}`}>
+        <Link key={category.name} href={`/products?category=${category.name.slice(0, 1).toUpperCase() + category.name.slice(1)}`}>
           <Card className="overflow-hidden h-64 relative group cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
               <CardContent className="p-6 text-white">

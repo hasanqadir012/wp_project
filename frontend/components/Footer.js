@@ -39,7 +39,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/shop" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/products" className="text-gray-400 hover:text-white transition-colors">
                   Shop
                 </Link>
               </li>
@@ -61,27 +61,27 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">Categories</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/shop/men" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/products?category=Men" className="text-gray-400 hover:text-white transition-colors">
                   Men
                 </Link>
               </li>
               <li>
-                <Link href="/shop/women" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/products?category=Women" className="text-gray-400 hover:text-white transition-colors">
                   Women
                 </Link>
               </li>
               <li>
-                <Link href="/shop/unisex" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/products?category=Unisex" className="text-gray-400 hover:text-white transition-colors">
                   Unisex
                 </Link>
               </li>
               <li>
-                <Link href="/shop/best-selling" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/products?category=Best+Selling" className="text-gray-400 hover:text-white transition-colors">
                   Best Selling
                 </Link>
               </li>
               <li>
-                <Link href="/shop/new-arrivals" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/products?category=New+Arrivals" className="text-gray-400 hover:text-white transition-colors">
                   New Arrivals
                 </Link>
               </li>
