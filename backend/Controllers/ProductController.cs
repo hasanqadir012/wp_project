@@ -36,6 +36,27 @@ namespace backend.Controllers
             return Ok(product);
         }
 
+        [HttpGet("{id:int}/images")]
+        public async Task<IActionResult> GetProductImages(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound();
+
+            var images = await _context.ProductImages
+                .Where(pi => pi.ProductId == id)
+                .Select(pi => pi.ImageUrl)
+                .ToListAsync();
+
+            // Include the main product image if available
+            var result = new
+            {
+                MainImage = product.ImageUrl,
+                AdditionalImages = images
+            };
+
+            return Ok(result);
+        }
+
         [HttpGet("popular")]
         public IActionResult GetPopularProducts()
         {

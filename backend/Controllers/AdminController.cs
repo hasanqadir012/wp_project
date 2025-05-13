@@ -53,8 +53,43 @@ namespace backend.Controllers
             _db.Products.Add(product);
             await _db.SaveChangesAsync();
 
-            if(model.Images != null)
-                await UploadProductImages(model.Images, product.Id);
+            if (model.Images != null && model.Images.Count > 0)
+            {
+                // Get the primary image (first image) to set as product's main image
+                var mainImagePath = await UploadProductImage(model.Images[0], product.Id);
+                Console.WriteLine(mainImagePath + " ....helooooooooooooooooooooooooooooooooooooooo");
+                if (!string.IsNullOrEmpty(mainImagePath))
+                {
+                    product.ImageUrl = mainImagePath;
+                    await _db.SaveChangesAsync();
+                }
+
+                // Upload and save additional images
+                if (model.Images.Count > 1)
+                {
+                    var productImages = new List<ProductImage>();
+                    for (int i = 1; i < model.Images.Count; i++)
+                    {
+                        var imagePath = await UploadProductImage(model.Images[i], product.Id);
+                        Console.WriteLine(imagePath, " ....worlddddddddddddddddddddddddd");
+                        if (!string.IsNullOrEmpty(imagePath))
+                        {
+                            productImages.Add(new ProductImage
+                            {
+                                ProductId = product.Id,
+                                ImageUrl = imagePath,
+                                CreatedAt = DateTime.Now
+                            });
+                        }
+                    }
+
+                    if (productImages.Any())
+                    {
+                        await _db.ProductImages.AddRangeAsync(productImages);
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
 
             return Ok(new { message = "Product Added"});
         }
@@ -70,10 +105,29 @@ namespace backend.Controllers
             product.Name = model.Name;
             product.Description = model.Description;
             product.Price = model.Price;
-            product.CategoryId = model.CategoryId;
+            product.CategoryId = _db.Categories
+                .Where(c => c.Name.ToLower() == model.CategoryName.ToLower())
+                .ToList()[0]
+                .CategoryId;
             product.StockQuantity = model.StockQuantity;
             product.IsAvailable = model.IsAvailable;
             product.UpdatedAt = DateTime.Now;
+
+            if (model.Images != null && model.Images.Count > 0)
+            {
+                // Update main image
+                var mainImagePath = await UploadProductImage(model.Images[0], product.Id);
+                if (!string.IsNullOrEmpty(mainImagePath))
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(product.ImageUrl))
+                    {
+                        DeleteImageFromStorage(product.ImageUrl);
+                    }
+
+                    product.ImageUrl = mainImagePath;
+                }
+            }
 
             await _db.SaveChangesAsync();
 
@@ -88,7 +142,15 @@ namespace backend.Controllers
 
             if(product.ImageUrl != null)
                 DeleteImageFromStorage(product.ImageUrl);
+
+            var productImages = await _db.ProductImages.Where(pi => pi.ProductId == id).ToListAsync();
+            foreach (var image in productImages)
+            {
+                DeleteImageFromStorage(image.ImageUrl);
+            }
+            _db.ProductImages.RemoveRange(productImages);
             _db.Products.Remove(product);
+
             await _db.SaveChangesAsync();
 
             return NoContent();
@@ -160,32 +222,29 @@ namespace backend.Controllers
             return Ok(vm);
         }
 
-        private async Task UploadProductImages(IEnumerable<IFormFile> files, int productId)
+        private async Task<string> UploadProductImage(IFormFile file, int productId)
         {
-            foreach (var file in files)
+            if (file != null && file.Length > 0)
             {
-                if (file != null && file.Length > 0)
+                var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "Content", "ProductImages", productId.ToString());
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "Content/ProductImages");
-                    Directory.CreateDirectory(uploadsFolder);
-
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(fileStream);
-                    }
-
-                    // Save image path to DB if needed
+                    await file.CopyToAsync(fileStream);
                 }
+                return $"/Content/ProductImages/{productId}/{uniqueFileName}";
             }
-
-            await _db.SaveChangesAsync();
+            return null;
         }
 
         private void DeleteImageFromStorage(string imageUrl)
         {
+            if (string.IsNullOrEmpty(imageUrl)) return;
+
             var imagePath = Path.Combine(_hostingEnvironment.WebRootPath, imageUrl.TrimStart('/'));
             if (System.IO.File.Exists(imagePath))
             {

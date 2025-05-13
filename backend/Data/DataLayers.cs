@@ -17,6 +17,8 @@ namespace backend.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +30,8 @@ namespace backend.Data
             modelBuilder.Entity<Category>().ToTable("Categories");
             modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
             modelBuilder.Entity<Order>().ToTable("Orders");
-            modelBuilder.Entity<Address>().ToTable("Address");
+            modelBuilder.Entity<Address>().ToTable("Addresses");
+            modelBuilder.Entity<ProductImage>().ToTable("ProductImages");
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)

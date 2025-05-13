@@ -7,6 +7,7 @@ import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -19,19 +20,14 @@ export default function ProductCard({ product }) {
     });
   };
 
-  // Default placeholder image
-  const imageUrl = product.imageUrl || '/perfume.jpeg';
-
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square overflow-hidden">
-          <Image
-            src={imageUrl}
+          <img
+            src={`${API_BASE_URL}${product.imageUrl}`} 
             alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform hover:scale-105"
+            className="object-contain w-full h-full"
           />
           {!product.isAvailable && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">

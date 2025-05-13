@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { AlertCircle, MinusIcon, PlusIcon, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
+import { API_BASE_URL } from '@/lib/api'
 
 export default function CartPage() {
   const router = useRouter()
@@ -79,7 +80,11 @@ export default function CartPage() {
                       {/* Product */}
                       <div className="col-span-3 flex items-center space-x-4">
                         <div className="h-16 w-16 bg-gray-100 rounded flex items-center justify-center">
-                          <div className="text-gray-400 text-xs">Image</div>
+                          <img
+                            src={`${API_BASE_URL}${item.imageUrl}`} 
+                            alt={item.name}
+                            className="object-contain w-full h-full"
+                          />
                         </div>
                         <div>
                           <h3 className="font-medium">{item.name}</h3>

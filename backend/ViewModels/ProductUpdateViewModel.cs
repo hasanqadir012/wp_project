@@ -20,12 +20,13 @@ namespace backend.ViewModels
 
         [Required]
         [Display(Name = "Category")]
-        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
 
         [Required]
         [Range(0, int.MaxValue)]
         public int StockQuantity { get; set; }
 
         public bool IsAvailable { get; set; }
+        public IFormFileCollection? Images { get; set; }
     }
 }

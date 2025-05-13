@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { productApi } from '@/lib/api'
+import { API_BASE_URL, productApi } from '@/lib/api'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -212,7 +212,11 @@ export default function ProductsPage() {
                   <div className="relative h-48 bg-gray-100">
                     {/* Replace with actual image when available */}
                     <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                      Product Image
+                      <img 
+                        src={`${API_BASE_URL}${product.imageUrl}`} 
+                        alt={product.name}
+                        className="object-contain w-full h-full"
+                      />
                     </div>
                   </div>
                   <CardContent className="p-4 flex-grow">

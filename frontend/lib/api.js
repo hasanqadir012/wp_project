@@ -1,9 +1,9 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5022/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5022';
 
 // Common fetch function with auth handling
 // Updated fetchAPI function to properly handle validation errors
 async function fetchAPI(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}/api${endpoint}`;
   
   // Set default headers
   let headers = {};
@@ -88,6 +88,7 @@ export const productApi = {
   getProduct: (id) => fetchAPI(`/Product/${id}`),
   getPopularProducts: () => fetchAPI('/Product/popular'),
   getCategories: () => fetchAPI('/Product/category-list'),
+  getProductImages: (id) => fetchAPI(`/Product/${id}/images`),
   searchProducts: (searchTerm, category = 'all collections', priceLow, priceHigh) => {
     const params = new URLSearchParams();
     if (searchTerm) params.append('searchTerm', searchTerm);

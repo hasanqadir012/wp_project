@@ -114,3 +114,5 @@ _[Ss]cripts
 *.ncrunchsolution
 *.dot[Cc]over
 backend/app.http
+
+backend/wwwroot/Content/

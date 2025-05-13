@@ -2,15 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { productApi } from '@/lib/api'
+import { API_BASE_URL, IMAGE_BASE_URL, productApi } from '@/lib/api'
 import { useCart } from '@/providers/CartProvider'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { formatCurrency } from '@/lib/utils'
 import { MinusIcon, PlusIcon, ShoppingCart, Heart, Share2 } from 'lucide-react'
 
@@ -23,6 +21,7 @@ export default function ProductDetailPage() {
   const [error, setError] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [activeImage, setActiveImage] = useState(0)
+  const [productImages, setProductImages] = useState([])
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -31,7 +30,6 @@ export default function ProductDetailPage() {
       setLoading(true)
       try {
         const product = (await productApi.getProduct(params.id))[0]
-        console.log('Fetched product:', product);
         
         if (!product) {
           setError('Product not found')
@@ -39,6 +37,25 @@ export default function ProductDetailPage() {
         }
         
         setProduct(product)
+
+          try {
+            const imagesData = await productApi.getProductImages(params.id)
+            const allImages = []
+            
+            // Add main image if exists
+            if (imagesData.mainImage) {
+              allImages.push(imagesData.mainImage)
+            }
+            
+            // Add additional images
+            if (imagesData.additionalImages && imagesData.additionalImages.length > 0) {
+              allImages.push(...imagesData.additionalImages)
+            }
+            
+            setProductImages(allImages)
+          } catch (err) {
+            console.error('Failed to fetch product images:', err)
+          }
       } catch (err) {
         console.error('Failed to fetch product:', err)
         setError('Failed to load product. Please try again later.')
@@ -107,21 +124,39 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div>
-          <div className="bg-gray-100 h-96 rounded-lg flex items-center justify-center mb-4">
-            {/* Placeholder for main product image */}
-            <div className="text-gray-400 text-xl">Product Image</div>
+          <div className="bg-gray-100 h-96 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
+            {productImages.length > 0 ? (
+              <div className="relative w-full h-full">
+                <img 
+                  src={`${API_BASE_URL}${productImages[activeImage]}`} 
+                  alt={product.name}
+                  className="object-contain w-full h-full"
+                />
+              </div>
+            ) : (
+              <div className="text-gray-400 text-xl">No Image Available</div>
+            )}
           </div>
-          <div className="grid grid-cols-4 gap-2">
-            {/* Thumbnail Images */}
-            {[...Array(4)].map((_, index) => (
-              <div
-                key={index}
-                className={`bg-gray-100 h-20 rounded cursor-pointer border-2 
-                  ${activeImage === index ? 'border-primary' : 'border-transparent'}`}
-                onClick={() => setActiveImage(index)}
-              />
-            ))}
-          </div>
+          
+          {/* Thumbnail Images */}
+          {productImages.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {productImages.map((image, index) => (
+                <div
+                  key={index}
+                  className={`bg-gray-100 h-20 rounded cursor-pointer border-2 relative overflow-hidden
+                    ${activeImage === index ? 'border-primary' : 'border-transparent'}`}
+                  onClick={() => setActiveImage(index)}
+                >
+                  <img 
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${image}`}
+                    alt={`${product.name} - thumbnail ${index + 1}`}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Info */}
@@ -196,7 +231,7 @@ export default function ProductDetailPage() {
       {/* Tabs for Additional Information */}
       <div className="mt-12">
         <Tabs defaultValue="description">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="description">Description</TabsTrigger>
             {/* <TabsTrigger value="details">Details</TabsTrigger> */}
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
