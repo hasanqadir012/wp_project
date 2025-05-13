@@ -188,7 +188,6 @@ export default function ProductDetailPage() {
               <li>Category: {product.category?.name || 'Perfume'}</li>
               <li>SKU: {product.id}</li>
               <li>Availability: {product.isAvailable ? 'In Stock' : 'Out of Stock'}</li>
-              <li>Stock: {product.stockQuantity} units</li>
             </ul>
           </div>
         </div>
@@ -199,13 +198,13 @@ export default function ProductDetailPage() {
         <Tabs defaultValue="description">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="description">Description</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
+            {/* <TabsTrigger value="details">Details</TabsTrigger> */}
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="p-4">
             <p className="text-gray-600">{product.description}</p>
           </TabsContent>
-          <TabsContent value="details" className="p-4">
+          {/* <TabsContent value="details" className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h3 className="font-medium mb-2">Product Specifications:</h3>
@@ -224,7 +223,7 @@ export default function ProductDetailPage() {
                 </ul>
               </div>
             </div>
-          </TabsContent>
+          </TabsContent> */}
           <TabsContent value="reviews" className="p-4">
             <p className="text-gray-600">No reviews yet for this product.</p>
           </TabsContent>

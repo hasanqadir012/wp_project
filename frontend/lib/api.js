@@ -1,5 +1,3 @@
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://k224084-001-site1.qtempurl.com/api';
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://wpbackend.convult.com/api';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5022/api';
 
 // Common fetch function with auth handling
